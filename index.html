@@ -98,6 +98,34 @@ function send() {
   messages.appendChild(d);
   msg.value = "";
 }
+
+// MODO PÁNICO: doble toque en pantalla
+let lastTap = 0;
+
+document.addEventListener("touchend", function () {
+  const now = new Date().getTime();
+  const tapLength = now - lastTap;
+
+  if (tapLength < 300 && tapLength > 0) {
+    activarPanico();
+  }
+
+  lastTap = now;
+});
+
+function activarPanico() {
+  // 1. borrar mensajes
+  messages.innerHTML = "";
+
+  // 2. limpiar input del chat
+  if (msg) msg.value = "";
+
+  // 3. ocultar chat
+  chat.style.display = "none";
+
+  // 4. mostrar calculadora
+  calc.style.display = "block";
+}
 </script>
 
 </body>
