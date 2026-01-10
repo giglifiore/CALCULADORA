@@ -1,6 +1,6 @@
 {
-  "name": "Memo",
-  "short_name": "Memo",
+  "name": "CALCULADORA",
+  "short_name": "CALCULADORA",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -18,3 +18,4 @@
     }
   ]
 }
+
