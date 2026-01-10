@@ -211,10 +211,17 @@ function activarPanico() {
   chat.style.display = "none";
   calc.style.display = "block";
 }
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+
+  
 </script>
 
 </body>
 </html>
+
 
 
 
