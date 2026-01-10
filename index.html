@@ -99,31 +99,63 @@ function send() {
   msg.value = "";
 }
 
-// MODO PÁNICO: doble toque en pantalla
+/* =========================
+   MODO PÁNICO – OPCIÓN C
+   Doble toque + Sacudir
+========================= */
+
+// ---- DOBLE TOQUE ----
 let lastTap = 0;
 
-document.addEventListener("touchend", function () {
+chat.addEventListener("touchend", function () {
   const now = new Date().getTime();
-  const tapLength = now - lastTap;
+  const diff = now - lastTap;
 
-  if (tapLength < 300 && tapLength > 0) {
+  if (diff < 300 && diff > 0) {
     activarPanico();
   }
-
   lastTap = now;
 });
 
+// ---- SACUDIR TELÉFONO ----
+let lx, ly, lz;
+const SHAKE_THRESHOLD = 22;
+
+window.addEventListener("devicemotion", function (e) {
+  if (!chat || chat.style.display === "none") return;
+
+  const a = e.accelerationIncludingGravity;
+  if (!a) return;
+
+  if (lx === undefined) {
+    lx = a.x; ly = a.y; lz = a.z;
+    return;
+  }
+
+  const delta =
+    Math.abs(a.x - lx) +
+    Math.abs(a.y - ly) +
+    Math.abs(a.z - lz);
+
+  if (delta > SHAKE_THRESHOLD) {
+    activarPanico();
+  }
+
+  lx = a.x; ly = a.y; lz = a.z;
+});
+
+// ---- FUNCIÓN CENTRAL ----
 function activarPanico() {
-  // 1. borrar mensajes
+  // borrar mensajes
   messages.innerHTML = "";
 
-  // 2. limpiar input del chat
+  // limpiar input del chat
   if (msg) msg.value = "";
 
-  // 3. ocultar chat
+  // ocultar chat
   chat.style.display = "none";
 
-  // 4. mostrar calculadora
+  // mostrar calculadora
   calc.style.display = "block";
 }
 </script>
