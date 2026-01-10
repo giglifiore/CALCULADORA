@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <title>Calculadora</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta http-equiv="Cache-Control" content="no-store" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
 <style>
 body { font-family: Arial; background:#f2f2f2; margin:0; }
 #calc, #chat { padding:20px; }
@@ -16,10 +21,17 @@ button {
   font-size:1.2em;
 }
 #messages {
-  height:60vh; background:white;
-  overflow-y:auto; padding:10px;
+  height:60vh;
+  background:white;
+  overflow-y:auto;
+  padding:10px;
+  margin-bottom:10px;
 }
 </style>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 
 <body>
@@ -59,7 +71,29 @@ button {
 </div>
 
 <script>
-const SECRET = "1990"; // 🔐 CAMBIA AQUÍ TU CLAVE
+/* =========================
+   CONFIGURACIÓN
+========================= */
+const SECRET = "1990"; // 🔐 CLAVE DE LA CALCULADORA
+let ROOM = null;
+let chatRef = null;
+
+/* =========================
+   FIREBASE CONFIG
+========================= */
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_PROYECTO.firebaseapp.com",
+  databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
+  projectId: "TU_PROYECTO"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* =========================
+   CALCULADORA
+========================= */
 let input = "";
 
 function press(v) {
@@ -74,8 +108,7 @@ function clearDisplay() {
 
 function equals() {
   if (input === SECRET) {
-    calc.style.display = "none";
-    chat.style.display = "block";
+    abrirChat();
     input = "";
     display.value = "";
     return;
@@ -89,40 +122,54 @@ function equals() {
   }
 }
 
-// chat local
+/* =========================
+   CHAT FIREBASE
+========================= */
+function abrirChat() {
+  ROOM = "room_" + SECRET;
+  chatRef = db.ref("chats/" + ROOM);
+
+  calc.style.display = "none";
+  chat.style.display = "block";
+  messages.innerHTML = "";
+
+  chatRef.limitToLast(50).on("child_added", snap => {
+    const data = snap.val();
+    let d = document.createElement("div");
+    d.textContent = data.text;
+    messages.appendChild(d);
+  });
+}
+
 function send() {
-  let m = msg.value;
-  if (!m) return;
-  let d = document.createElement("div");
-  d.textContent = m;
-  messages.appendChild(d);
+  const text = msg.value;
+  if (!text || !chatRef) return;
+
+  chatRef.push({
+    text: text,
+    time: Date.now()
+  });
+
   msg.value = "";
 }
 
 /* =========================
-   MODO PÁNICO – OPCIÓN C
+   MODO PÁNICO (OPCIÓN C)
    Doble toque + Sacudir
 ========================= */
-
-// ---- DOBLE TOQUE ----
 let lastTap = 0;
 
-chat.addEventListener("touchend", function () {
-  const now = new Date().getTime();
-  const diff = now - lastTap;
-
-  if (diff < 300 && diff > 0) {
-    activarPanico();
-  }
+chat.addEventListener("touchend", () => {
+  const now = Date.now();
+  if (now - lastTap < 300) activarPanico();
   lastTap = now;
 });
 
-// ---- SACUDIR TELÉFONO ----
 let lx, ly, lz;
 const SHAKE_THRESHOLD = 22;
 
-window.addEventListener("devicemotion", function (e) {
-  if (!chat || chat.style.display === "none") return;
+window.addEventListener("devicemotion", e => {
+  if (!chatRef || chat.style.display === "none") return;
 
   const a = e.accelerationIncludingGravity;
   if (!a) return;
@@ -137,28 +184,24 @@ window.addEventListener("devicemotion", function (e) {
     Math.abs(a.y - ly) +
     Math.abs(a.z - lz);
 
-  if (delta > SHAKE_THRESHOLD) {
-    activarPanico();
-  }
+  if (delta > SHAKE_THRESHOLD) activarPanico();
 
   lx = a.x; ly = a.y; lz = a.z;
 });
 
-// ---- FUNCIÓN CENTRAL ----
+/* =========================
+   FUNCIÓN PÁNICO
+========================= */
 function activarPanico() {
-  // borrar mensajes
+  if (chatRef) chatRef.remove(); // borra para ambos
   messages.innerHTML = "";
-
-  // limpiar input del chat
-  if (msg) msg.value = "";
-
-  // ocultar chat
+  msg.value = "";
   chat.style.display = "none";
-
-  // mostrar calculadora
   calc.style.display = "block";
 }
 </script>
 
 </body>
 </html>
+
+
