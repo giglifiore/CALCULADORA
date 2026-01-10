@@ -74,7 +74,7 @@ button {
 /* =========================
    CONFIGURACIÓN
 ========================= */
-const SECRET = "1990"; // 🔐 CLAVE DE LA CALCULADORA
+//const SECRET = "1990"; // 🔐 CLAVE DE LA CALCULADORA
 let ROOM = null;
 let chatRef = null;
 
@@ -110,12 +110,17 @@ function clearDisplay() {
 }
 
 function equals() {
-  if (input === SECRET) {
-    abrirChat();
+  if (!input) return;
+
+  // cualquier clave de 4+ caracteres abre un chat
+  if (input.length >= 4) {
+    abrirChat(input);
     input = "";
     display.value = "";
     return;
   }
+
+  // si no, funciona como calculadora normal
   try {
     display.value = eval(input);
     input = display.value.toString();
@@ -125,11 +130,12 @@ function equals() {
   }
 }
 
+
 /* =========================
    CHAT FIREBASE
 ========================= */
-function abrirChat() {
-  ROOM = "room_" + SECRET;
+function abrirChat(clave) {
+  ROOM = "room_" + clave;
   chatRef = db.ref("chats/" + ROOM);
 
   calc.style.display = "none";
@@ -143,6 +149,7 @@ function abrirChat() {
     messages.appendChild(d);
   });
 }
+
 
 function send() {
   const text = msg.value;
@@ -206,6 +213,7 @@ function activarPanico() {
 
 </body>
 </html>
+
 
 
 
