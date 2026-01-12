@@ -29,6 +29,27 @@ button {
   padding:10px;
   margin-bottom:10px;
 }
+  .msg {
+  padding: 8px 10px;
+  margin: 6px 0;
+  max-width: 75%;
+  border-radius: 10px;
+  word-wrap: break-word;
+  font-size: 0.95em;
+}
+
+.mine {
+  background: #d1f5d3;
+  margin-left: auto;
+  text-align: right;
+}
+
+.other {
+  background: #eee;
+  margin-right: auto;
+  text-align: left;
+}
+
 </style>
 
 <!-- FIREBASE -->
@@ -76,6 +97,12 @@ button {
 /* =========================
    CONFIGURACIÓN
 ========================= */
+/* =========================
+   ID ÚNICO DEL USUARIO
+========================= */
+const MY_ID = localStorage.getItem("memo_id") || crypto.randomUUID();
+localStorage.setItem("memo_id", MY_ID);
+
 //const SECRET = "1990"; // 🔐 CLAVE DE LA CALCULADORA
 let ROOM = null;
 let chatRef = null;
@@ -144,16 +171,33 @@ function abrirChat(clave) {
   chat.style.display = "block";
   messages.innerHTML = "";
 
-  chatRef.limitToLast(50).on("child_added", snap => {
+ /* chatRef.limitToLast(50).on("child_added", snap => {
     const data = snap.val();
     let d = document.createElement("div");
     d.textContent = data.text;
     messages.appendChild(d);
-  });
+  });*/
+  chatRef.limitToLast(50).on("child_added", snap => {
+  const data = snap.val();
+
+  let d = document.createElement("div");
+  d.classList.add("msg");
+
+  if (data.uid === MY_ID) {
+    d.classList.add("mine");
+  } else {
+    d.classList.add("other");
+  }
+
+  d.textContent = data.text;
+  messages.appendChild(d);
+  messages.scrollTop = messages.scrollHeight;
+});
+
 }
 
 
-function send() {
+/*function send() {
   const text = msg.value;
   if (!text || !chatRef) return;
 
@@ -163,7 +207,21 @@ function send() {
   });
 
   msg.value = "";
+}*/
+
+  function send() {
+  const text = msg.value.trim();
+  if (!text || !chatRef) return;
+
+  chatRef.push({
+    text: text,
+    uid: MY_ID,
+    time: Date.now()
+  });
+
+  msg.value = "";
 }
+
 
 /* =========================
    MODO PÁNICO (OPCIÓN C)
@@ -221,3 +279,4 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
