@@ -73,6 +73,8 @@ button {
 </div>
 
 <script>
+  const MY_ID = localStorage.getItem("memo_id") || crypto.randomUUID();
+localStorage.setItem("memo_id", MY_ID);
 /* =========================
    CONFIGURACIÓN
 ========================= */
@@ -154,14 +156,15 @@ function abrirChat(clave) {
 
 
 function send() {
-  const text = msg.value;
-  if (!text || !chatRef) return;
+  let text = msg.value.trim();
+  if (!text) return;
 
-  chatRef.push({
+  const message = {
     text: text,
-    time: Date.now()
-  });
+    sender: MY_ID
+  };
 
+  renderMessage(message);
   msg.value = "";
 }
 
@@ -216,11 +219,28 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js");
 }
 
+  function renderMessage(message) {
+  const d = document.createElement("div");
+  d.classList.add("msg");
+
+  if (message.sender === MY_ID) {
+    d.classList.add("me");
+  } else {
+    d.classList.add("other");
+  }
+
+  d.textContent = message.text;
+  messages.appendChild(d);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+
   
 </script>
 
 </body>
 </html>
+
 
 
 
