@@ -1,199 +1,43 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Calculadora</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+const SHAKE_THRESHOLD = 22;
 
-  <style>
-    body {
-      font-family: Arial;
-      background: #f2f2f2;
-      margin: 0;
-    }
+window.addEventListener("devicemotion", e => {
+  if (!chatRef || chat.style.display === "none") return;
 
-    #calc,
-    #chat {
-      padding: 20px;
-    }
+  const a = e.accelerationIncludingGravity;
+  if (!a) return;
 
-    #display {
-      width: 100%;
-      font-size: 2em;
-      padding: 10px;
-      text-align: right;
-      margin-bottom: 10px;
-    }
+  if (lx === undefined) {
+    lx = a.x; ly = a.y; lz = a.z;
+    return;
+  }
 
-    button {
-      width: 23%;
-      padding: 20px;
-      margin: 1%;
-      font-size: 1.2em;
-    }
+  const delta =
+    Math.abs(a.x - lx) +
+    Math.abs(a.y - ly) +
+    Math.abs(a.z - lz);
 
-    #messages {
-      height: 60vh;
-      background: white;
-      overflow-y: auto;
-      padding: 10px;
-    }
-  </style>
-</head>
+  if (delta > SHAKE_THRESHOLD) activarPanico();
 
-<body>
+  lx = a.x; ly = a.y; lz = a.z;
+});
 
-  <!-- CALCULADORA -->
-  <div id="calc">
-    <input id="display" disabled />
+/* =========================
+   FUNCIÓN PÁNICO
+========================= */
+function activarPanico() {
+  //if (chatRef) chatRef.remove(); // borra para ambos
+  //messages.innerHTML = "";
+  msg.value = "";
+  chat.style.display = "none";
+  calc.style.display = "block";
+}
 
-    <div>
-      <button onclick="press('7')">7</button>
-      <button onclick="press('8')">8</button>
-      <button onclick="press('9')">9</button>
-      <button onclick="press('/')">÷</button>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
 
-      <button onclick="press('4')">4</button>
-      <button onclick="press('5')">5</button>
-      <button onclick="press('6')">6</button>
-      <button onclick="press('*')">×</button>
-
-      <button onclick="press('1')">1</button>
-      <button onclick="press('2')">2</button>
-      <button onclick="press('3')">3</button>
-      <button onclick="press('-')">−</button>
-
-      <button onclick="press('0')">0</button>
-      <button onclick="clearDisplay()">C</button>
-      <button onclick="equals()">=</button>
-      <button onclick="press('+')">+</button>
-    </div>
-  </div>
-
-  <!-- CHAT -->
-  <div id="chat" style="display:none;">
-    <h3>Memo</h3>
-    <div id="messages"></div>
-    <input id="msg" placeholder="Escribe..." />
-    <button onclick="send()">Enviar</button>
-  </div>
-
-  <script>
-    const SECRET = "1990"; // 🔐 CAMBIA AQUÍ TU CLAVE
-    let input = "";
-
-    function press(v) {
-      input += v;
-      display.value = input;
-    }
-
-    function clearDisplay() {
-      input = "";
-      display.value = "";
-    }
-
-    function equals() {
-      if (input === SECRET) {
-        calc.style.display = "none";
-        chat.style.display = "block";
-        input = "";
-        display.value = "";
-        return;
-      }
-
-      try {
-        display.value = eval(input);
-        input = display.value.toString();
-      } catch {
-        display.value = "Error";
-        input = "";
-      }
-    }
-
-    // chat local
-    function send() {
-      let m = msg.value;
-      if (!m) return;
-
-      let d = document.createElement("div");
-      d.textContent = m;
-      messages.appendChild(d);
-      msg.value = "";
-    }
-
-    /* =========================
-       MODO PÁNICO – OPCIÓN C
-       Doble toque + Sacudir
-    ========================= */
-
-    // ---- DOBLE TOQUE ----
-    let lastTap = 0;
-
-    chat.addEventListener("touchend", function () {
-      const now = new Date().getTime();
-      const diff = now - lastTap;
-
-      if (diff < 300 && diff > 0) {
-        activarPanico();
-      }
-      lastTap = now;
-    });
-
-    // ---- SACUDIR TELÉFONO ----
-    let lx, ly, lz;
-    const SHAKE_THRESHOLD = 22;
-
-    window.addEventListener("devicemotion", function (e) {
-      if (!chat || chat.style.display === "none") return;
-
-      const a = e.accelerationIncludingGravity;
-      if (!a) return;
-
-      if (lx === undefined) {
-        lx = a.x;
-        ly = a.y;
-        lz = a.z;
-        return;
-      }
-
-      const delta =
-        Math.abs(a.x - lx) +
-        Math.abs(a.y - ly) +
-        Math.abs(a.z - lz);
-
-      if (delta > SHAKE_THRESHOLD) {
-        activarPanico();
-      }
-
-      lx = a.x;
-      ly = a.y;
-      lz = a.z;
-    });
-
-    // ---- FUNCIÓN CENTRAL ----
-    function activarPanico() {
-      // borrar mensajes
-      messages.innerHTML = "";
-
-      // limpiar input del chat
-      if (msg) msg.value = "";
-
-      // ocultar chat
-      chat.style.display = "none";
-
-      // mostrar calculadora
-      calc.style.display = "block";
-    }
-  </script>
+  
+</script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
