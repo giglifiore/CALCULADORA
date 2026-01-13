@@ -148,16 +148,47 @@ function clearDisplay() {
  function equals() {
   if (!input) return;
 
-  // 👉 CHAT NUEVO: debe empezar con "0000" + números
-  if (/^pass\d{4,}$/i.test(input)) {
-    const codigo = input.replace(/^0000/i, ""); // quita "pass"
+  // =========================
+  // 1️⃣ CHAT NUEVO: "+-1990"
+  // =========================
+  if (/^\+\-\d{4,}$/.test(input)) {
+    const codigo = input.slice(2); // quita "+-"
     abrirChat(codigo);
     input = "";
     display.value = "";
     return;
   }
 
-  // 👉 CALCULADORA NORMAL
+  // =========================
+  // 2️⃣ ENTRAR A CHAT EXISTENTE: "1990"
+  // =========================
+  if (/^\d{4,}$/.test(input)) {
+    const codigo = input;
+
+    // verificar si el chat existe
+    db.ref("chats/room_" + codigo)
+      .get()
+      .then(snapshot => {
+        if (snapshot.exists()) {
+          abrirChat(codigo);
+        } else {
+          // no existe → calculadora normal
+          try {
+            display.value = eval(input);
+            input = display.value.toString();
+          } catch {
+            display.value = "Error";
+            input = "";
+          }
+        }
+      });
+
+    return;
+  }
+
+  // =========================
+  // 3️⃣ CALCULADORA NORMAL
+  // =========================
   try {
     display.value = eval(input);
     input = display.value.toString();
@@ -166,6 +197,7 @@ function clearDisplay() {
     input = "";
   }
 }
+
 
 
 
@@ -289,6 +321,7 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
 
 
