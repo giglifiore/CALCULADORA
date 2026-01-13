@@ -142,9 +142,9 @@ function equals() {
   if (!input) return;
 
   // patrón: +-CODIGO=
- // abrir chat SOLO si empieza con "+-"
-if (input.startsWith("+-")) {
-  const codigo = input.slice(2).trim(); // quita "+-"
+// abrir chat si termina en "=" (ej: 1990=)
+if (input.endsWith("=")) {
+  const codigo = input.slice(0, -1).trim(); // quita "="
 
   if (codigo.length > 0) {
     abrirChat(codigo);
@@ -153,6 +153,7 @@ if (input.startsWith("+-")) {
     return;
   }
 }
+
 
   // cualquier clave de 4+ caracteres abre un chat
  /* if (input.length >= 4) {
@@ -292,6 +293,7 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
 
 
