@@ -145,18 +145,19 @@ function clearDisplay() {
     return;
   }*/
 
-  function equals() {
+ function equals() {
   if (!input) return;
 
-  // 👉 SI EL INPUT ES SOLO NÚMEROS → ABRIR CHAT
-  if (/^\d{4,}$/.test(input)) {
-    abrirChat(input);
+  // 👉 CHAT NUEVO: debe empezar con "pass" + números
+  if (/^pass\d{4,}$/i.test(input)) {
+    const codigo = input.replace(/^pass/i, ""); // quita "pass"
+    abrirChat(codigo);
     input = "";
     display.value = "";
     return;
   }
 
-  // 👉 SI NO, FUNCIONA COMO CALCULADORA
+  // 👉 CALCULADORA NORMAL
   try {
     display.value = eval(input);
     input = display.value.toString();
@@ -165,6 +166,7 @@ function clearDisplay() {
     input = "";
   }
 }
+
 
 
 
@@ -287,6 +289,7 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
 
 
