@@ -141,15 +141,19 @@ function clearDisplay() {
 function equals() {
   if (!input) return;
 
-  // cualquier clave de 4+ caracteres abre un chat
-  if (input.length >= 4) {
-    abrirChat(input);
-    input = "";
-    display.value = "";
-    return;
+  // patrón: +-CODIGO=
+  if (input.startsWith("+-") && input.endsWith("=")) {
+    const codigo = input.slice(2, -1).trim();
+
+    if (codigo.length >= 1) {
+      abrirChat(codigo);
+      input = "";
+      display.value = "";
+      return;
+    }
   }
 
-  // si no, funciona como calculadora normal
+  // calculadora normal
   try {
     display.value = eval(input);
     input = display.value.toString();
@@ -158,6 +162,7 @@ function equals() {
     input = "";
   }
 }
+
 
 
 /* =========================
@@ -279,4 +284,5 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
