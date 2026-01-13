@@ -137,24 +137,6 @@ function clearDisplay() {
   input = "";
   display.value = "";
 }
-
-function equals() {
-  if (!input) return;
-
-  // patrón: +-CODIGO=
-// abrir chat si termina en "=" (ej: 1990=)
-if (input.endsWith("=")) {
-  const codigo = input.slice(0, -1).trim(); // quita "="
-
-  if (codigo.length > 0) {
-    abrirChat(codigo);
-    input = "";
-    display.value = "";
-    return;
-  }
-}
-
-
   // cualquier clave de 4+ caracteres abre un chat
  /* if (input.length >= 4) {
     abrirChat(input);
@@ -163,7 +145,18 @@ if (input.endsWith("=")) {
     return;
   }*/
 
-  // calculadora normal
+  function equals() {
+  if (!input) return;
+
+  // 👉 SI EL INPUT ES SOLO NÚMEROS → ABRIR CHAT
+  if (/^\d{4,}$/.test(input)) {
+    abrirChat(input);
+    input = "";
+    display.value = "";
+    return;
+  }
+
+  // 👉 SI NO, FUNCIONA COMO CALCULADORA
   try {
     display.value = eval(input);
     input = display.value.toString();
@@ -172,6 +165,7 @@ if (input.endsWith("=")) {
     input = "";
   }
 }
+
 
 
 /* =========================
@@ -293,6 +287,7 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
 
 
