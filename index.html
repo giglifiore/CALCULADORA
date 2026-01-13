@@ -142,16 +142,25 @@ function equals() {
   if (!input) return;
 
   // patrón: +-CODIGO=
-  if (input.startsWith("0+-") && input.endsWith("=")) {
-    const codigo = input.slice(2, -1).trim();
+ // abrir chat SOLO si empieza con "+-"
+if (input.startsWith("+-")) {
+  const codigo = input.slice(2).trim(); // quita "+-"
 
-    if (codigo.length >= 1) {
-      abrirChat(codigo);
-      input = "";
-      display.value = "";
-      return;
-    }
+  if (codigo.length > 0) {
+    abrirChat(codigo);
+    input = "";
+    display.value = "";
+    return;
   }
+}
+
+  // cualquier clave de 4+ caracteres abre un chat
+ /* if (input.length >= 4) {
+    abrirChat(input);
+    input = "";
+    display.value = "";
+    return;
+  }*/
 
   // calculadora normal
   try {
@@ -162,7 +171,6 @@ function equals() {
     input = "";
   }
 }
-
 
 
 /* =========================
@@ -284,6 +292,7 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
 
 
