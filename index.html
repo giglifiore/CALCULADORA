@@ -151,8 +151,8 @@ function clearDisplay() {
   // =========================
   // 1️⃣ CHAT NUEVO: "+-1990"
   // =========================
-  if (/^\+\-\d{4,}$/.test(input)) {
-    const codigo = input.slice(2); // quita "+-"
+  if (/^\+\+\d{4,}$/.test(input)) {
+    const codigo = input.slice(2); // quita "++"
     abrirChat(codigo);
     input = "";
     display.value = "";
@@ -321,6 +321,7 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
 
 
