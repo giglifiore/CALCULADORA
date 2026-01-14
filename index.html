@@ -337,15 +337,17 @@ function crearChat(codigo) {
   });
 }
 
-  function iniciarUIChat(chatRef) {
-  ROOM = chatRef.key;
-  window.chatRef = chatRef.child("messages");
+ function iniciarUIChat(roomRef) {
+  ROOM = roomRef.key;
+
+  // ✅ ESTA es la referencia correcta
+  chatRef = roomRef.child("messages");
 
   calc.style.display = "none";
   chat.style.display = "block";
   messages.innerHTML = "";
 
-  window.chatRef.limitToLast(50).on("child_added", snap => {
+  chatRef.limitToLast(50).on("child_added", snap => {
     const data = snap.val();
 
     let d = document.createElement("div");
@@ -357,6 +359,7 @@ function crearChat(codigo) {
     messages.scrollTop = messages.scrollHeight;
   });
 }
+
 
 
 
@@ -441,6 +444,7 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
 
 
