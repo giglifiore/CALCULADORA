@@ -236,7 +236,7 @@ function existeChat(codigo) {
     .then(snap => snap.exists());
 }
 
-  function crearChat(codigo) {
+/*  function crearChat(codigo) {
   const roomId = "room_" + codigo;
   const ref = db.ref("chats/" + roomId);
 
@@ -247,6 +247,25 @@ function existeChat(codigo) {
   });
 
   abrirChat(codigo);
+}*/
+function crearChat(codigo) {
+  const roomId = "room_" + codigo;
+  const ref = db.ref("chats/" + roomId);
+
+  ref.once("value").then(snap => {
+    if (snap.exists()) {
+      alert("El chat ya existe");
+      return;
+    }
+
+    ref.set({
+      owner: MY_ID,
+      guest: null,
+      created: Date.now()
+    });
+
+    abrirChat(codigo);
+  });
 }
 
 
@@ -255,7 +274,7 @@ function existeChat(codigo) {
 /* =========================
    CHAT FIREBASE
 ========================= */
-function abrirChat(clave) {
+/*function abrirChat(clave) {
   ROOM = "room_" + clave;
   chatRef = db.ref("chats/" + ROOM);
 
@@ -263,12 +282,7 @@ function abrirChat(clave) {
   chat.style.display = "block";
   messages.innerHTML = "";
 
- /* chatRef.limitToLast(50).on("child_added", snap => {
-    const data = snap.val();
-    let d = document.createElement("div");
-    d.textContent = data.text;
-    messages.appendChild(d);
-  });*/
+ 
   chatRef.limitToLast(50).on("child_added", snap => {
   const data = snap.val();
 
@@ -286,7 +300,64 @@ function abrirChat(clave) {
   messages.scrollTop = messages.scrollHeight;
 });
 
+}*/
+  function abrirChat(codigo) {
+  const roomId = "room_" + codigo;
+  const ref = db.ref("chats/" + roomId);
+
+  ref.once("value").then(snap => {
+    if (!snap.exists()) {
+      alert("El chat no existe");
+      return;
+    }
+
+    const data = snap.val();
+
+    // 👑 DUEÑO
+    if (data.owner === MY_ID) {
+      iniciarUIChat(ref);
+      return;
+    }
+
+    // 👤 SEGUNDO USUARIO
+    if (!data.guest) {
+      ref.update({ guest: MY_ID });
+      iniciarUIChat(ref);
+      return;
+    }
+
+    // 👤 INVITADO PERMITIDO
+    if (data.guest === MY_ID) {
+      iniciarUIChat(ref);
+      return;
+    }
+
+    // ❌ BLOQUEADO
+    alert("Este chat ya tiene 2 personas");
+  });
 }
+
+  function iniciarUIChat(chatRef) {
+  ROOM = chatRef.key;
+  window.chatRef = chatRef.child("messages");
+
+  calc.style.display = "none";
+  chat.style.display = "block";
+  messages.innerHTML = "";
+
+  window.chatRef.limitToLast(50).on("child_added", snap => {
+    const data = snap.val();
+
+    let d = document.createElement("div");
+    d.classList.add("msg");
+    d.classList.add(data.uid === MY_ID ? "mine" : "other");
+
+    d.textContent = data.text;
+    messages.appendChild(d);
+    messages.scrollTop = messages.scrollHeight;
+  });
+}
+
 
 
 /*function send() {
@@ -313,7 +384,6 @@ function abrirChat(clave) {
 
   msg.value = "";
 }
-
 
 /* =========================
    MODO PÁNICO (OPCIÓN C)
@@ -371,6 +441,7 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
 
 
