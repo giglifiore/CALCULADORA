@@ -145,17 +145,17 @@ function clearDisplay() {
     return;
   }*/
  
- function equals() {
+/* function equals() {
   if (!input) return;
 
   // 👉 1. NUEVO CHAT: ++1990
- /* if (/^\+\+\d+$/.test(input)) {
+ / if (/^\+\+\d+$/.test(input)) {
     const codigo = input.slice(2); // quita "++"
     abrirChat(codigo);
     input = "";
     display.value = "";
     return;
-  }*/
+  }/
    if (/^\d+$/.test(input)) {
   existeChat(input).then(existe => {
     if (existe) {
@@ -191,6 +191,41 @@ function clearDisplay() {
     display.value = "Error";
     input = "";
   }
+}*/
+function equals() {
+  if (!input) return;
+
+  // 🔹 1. CREAR CHAT NUEVO: ++1990
+  if (/^\+\+\d{4,}$/.test(input)) {
+    const codigo = input.slice(2); // quita "++"
+    crearChat(codigo);
+    input = "";
+    display.value = "";
+    return;
+  }
+
+  // 🔹 2. ENTRAR A CHAT EXISTENTE: 1990
+  if (/^\d{4,}$/.test(input)) {
+    existeChat(input).then(existe => {
+      if (existe) {
+        abrirChat(input);
+      } else {
+        // no existe → calculadora
+        display.value = eval(input);
+        input = display.value.toString();
+      }
+    });
+    return;
+  }
+
+  // 🔹 3. CALCULADORA NORMAL
+  try {
+    display.value = eval(input);
+    input = display.value.toString();
+  } catch {
+    display.value = "Error";
+    input = "";
+  }
 }
 
 
@@ -200,6 +235,20 @@ function existeChat(codigo) {
     .once("value")
     .then(snap => snap.exists());
 }
+
+  function crearChat(codigo) {
+  const roomId = "room_" + codigo;
+  const ref = db.ref("chats/" + roomId);
+
+  ref.push({
+    system: true,
+    text: "Chat iniciado",
+    time: Date.now()
+  });
+
+  abrirChat(codigo);
+}
+
 
 
 
@@ -322,6 +371,7 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
 
 
