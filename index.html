@@ -144,18 +144,33 @@ function clearDisplay() {
     display.value = "";
     return;
   }*/
-
+ 
  function equals() {
   if (!input) return;
 
   // 👉 1. NUEVO CHAT: ++1990
-  if (/^\+\+\d+$/.test(input)) {
+ /* if (/^\+\+\d+$/.test(input)) {
     const codigo = input.slice(2); // quita "++"
     abrirChat(codigo);
     input = "";
     display.value = "";
     return;
-  }
+  }*/
+   if (/^\d+$/.test(input)) {
+  existeChat(input).then(existe => {
+    if (existe) {
+      abrirChat(input);
+      input = "";
+      display.value = "";
+      return;
+    }
+    // si no existe → calculadora
+    display.value = eval(input);
+    input = display.value.toString();
+  });
+  return;
+}
+
 
   // 👉 2. CHAT EXISTENTE: 1990
   if (/^\d+$/.test(input)) {
@@ -179,7 +194,12 @@ function clearDisplay() {
 }
 
 
-
+function existeChat(codigo) {
+  return firebase.database()
+    .ref("chats/room_" + codigo)
+    .once("value")
+    .then(snap => snap.exists());
+}
 
 
 
@@ -302,6 +322,7 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
 
 
